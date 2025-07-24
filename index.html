@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KillerSnos</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
             --dark-purple: #1a0526;
@@ -38,84 +39,17 @@
             margin-bottom: 30px;
         }
         
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .user-icon {
-            font-size: 20px;
-            color: var(--accent-purple);
-        }
-        
-        .subscription-info {
-            margin-top: 5px;
-            font-size: 14px;
-            color: #aaa;
-        }
-        
         .logo {
             font-size: 32px;
             font-weight: bold;
             color: var(--accent-purple);
             text-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        
-        .nav-buttons {
-            display: flex;
-            gap: 15px;
-        }
-        
-        .nav-button {
-            padding: 10px 20px;
-            background-color: var(--purple);
-            color: var(--text-color);
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: bold;
-        }
-        
-        .nav-button:hover {
-            background-color: var(--accent-purple);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(138, 43, 226, 0.3);
-        }
-        
-        .content {
-            display: none;
-            padding: 20px;
-            background-color: var(--purple);
-            border-radius: 10px;
-            margin-top: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-        
-        .content.active {
-            display: block;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
         }
         
         .botnet-form {
             display: flex;
             flex-direction: column;
             gap: 20px;
-        }
-        
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
         }
         
         .form-group label {
@@ -130,6 +64,7 @@
             border-radius: 5px;
             color: var(--text-color);
             font-size: 16px;
+            width: 100%;
         }
         
         .submit-btn {
@@ -146,7 +81,6 @@
         
         .submit-btn:hover {
             background-color: #6a1b9a;
-            box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);
         }
         
         .notification {
@@ -165,318 +99,57 @@
         .notification.error {
             background-color: #F44336;
         }
-        
-        .stats {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: rgba(0, 0, 0, 0.3);
-            border-radius: 5px;
-            display: none;
-        }
-        
-        /* Стили для модального окна авторизации */
-        .auth-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.7);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .auth-content {
-            background-color: var(--purple);
-            padding: 30px;
-            border-radius: 10px;
-            width: 400px;
-            max-width: 90%;
-        }
-        
-        .auth-title {
-            font-size: 24px;
-            margin-bottom: 20px;
-            color: var(--accent-purple);
-            text-align: center;
-        }
-        
-        .auth-input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            background-color: rgba(0,0,0,0.2);
-            border: 1px solid var(--light-purple);
-            color: white;
-            border-radius: 5px;
-        }
-        
-        .auth-btn {
-            width: 100%;
-            padding: 12px;
-            background-color: var(--accent-purple);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        
-        .auth-btn:hover {
-            background-color: #6a1b9a;
-        }
-        
-        .auth-error {
-            color: #ff4444;
-            margin-top: 10px;
-            display: none;
-        }
     </style>
 </head>
 <body>
-    <!-- Модальное окно авторизации -->
-    <div id="authModal" class="auth-modal">
-        <div class="auth-content">
-            <div class="auth-title"><i class="fas fa-key"></i> Введите ключ доступа</div>
-            <input type="text" id="authKey" class="auth-input" placeholder="Ваш ключ...">
-            <button onclick="checkAuth()" class="auth-btn">Войти</button>
-            <div id="authError" class="auth-error">Неверный ключ доступа</div>
-        </div>
-    </div>
-
     <div class="container">
         <header>
-            <div class="user-info">
-                <i class="fas fa-user user-icon"></i>
-                <div>
-                    <div id="username">Гость</div>
-                    <div class="subscription-info">Подписка до: <span id="subscription-date">Не активна</span></div>
-                </div>
-            </div>
-            
             <div class="logo">KillerSnos</div>
-            
-            <div class="nav-buttons">
-                <button class="nav-button" onclick="showContent('botnet')">Ботнет</button>
-                <button class="nav-button disabled">Мейлер</button>
-                <button class="nav-button" onclick="showContent('creator')">Создатель</button>
-                <button class="nav-button" onclick="logout()" id="logoutBtn" style="display:none;"><i class="fas fa-sign-out-alt"></i> Выйти</button>
-            </div>
         </header>
         
-        <div id="botnet-content" class="content">
-            <div class="botnet-form">
-                <h2><i class="fas fa-robot"></i> Отправка жалоб</h2>
-                <div class="form-group">
-                    <label for="url"><i class="fas fa-link"></i> Ссылка на нарушение</label>
-                    <input type="url" id="url" placeholder="https://t.me/username/123" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="reason"><i class="fas fa-flag"></i> Причина жалобы</label>
-                    <select id="reason" required>
-                        <option value="" disabled selected>Выберите причину</option>
-                        <option value="spam">Спам</option>
-                        <option value="violence">Насилие</option>
-                        <option value="pornography">Порнография</option>
-                        <option value="childAbuse">Детский контент</option>
-                        <option value="copyright">Нарушение авторских прав</option>
-                        <option value="other">Другое</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="message"><i class="fas fa-comment-alt"></i> Комментарий</label>
-                    <textarea id="message" rows="3" placeholder="Дополнительная информация (необязательно)"></textarea>
-                </div>
-                
-                <button class="submit-btn" onclick="submitReport()">
-                    <i class="fas fa-paper-plane"></i> Отправить жалобу
-                </button>
-                
-                <div id="stats" class="stats">
-                    <p><i class="fas fa-check-circle"></i> Успешно отправлено: <span id="success-count">0</span></p>
-                    <p><i class="fas fa-times-circle"></i> Ошибок: <span id="failed-count">0</span></p>
-                </div>
+        <div class="botnet-form">
+            <h2><i class="fas fa-robot"></i> Отправка жалоб</h2>
+            
+            <div class="form-group">
+                <label for="url"><i class="fas fa-link"></i> Ссылка на нарушение</label>
+                <input type="url" id="url" placeholder="https://t.me/юз/1488" required>
             </div>
-        </div>
-        
-        <div id="creator-content" class="content">
-            <div class="creator-info">
-                <h3>Создатель проекта</h3>
-                <p>По всем вопросам обращайтесь:</p>
-                <p><a href="https://t.me/vilovskiyy" target="_blank">@vilovskiyy</a></p>
+            
+            <div class="form-group">
+                <label for="reason"><i class="fas fa-flag"></i> Причина жалобы</label>
+                <select id="reason" required>
+                    <option value="" disabled selected>Выберите причину</option>
+                    <option value="spam">Спам</option>
+                    <option value="violence">Насилие</option>
+                    <option value="pornography">Порнография</option>
+                    <option value="childAbuse">Детский контент</option>
+                    <option value="copyright">Нарушение авторских прав</option>
+                    <option value="other">Другое</option>
+                </select>
             </div>
+            
+            <div class="form-group">
+                <label for="message"><i class="fas fa-comment-alt"></i> Комментарий</label>
+                <textarea id="message" rows="3" placeholder="Дополнительная информация (необязательно)"></textarea>
+            </div>
+            
+            <button class="submit-btn" onclick="submitReport()">
+                <i class="fas fa-paper-plane"></i> Отправить жалобу
+            </button>
         </div>
     </div>
 
     <div id="notification" class="notification"></div>
 
     <script>
-        let currentUser = null;
+        const BOT_TOKEN = '8141027672:AAF0uzYKeyso2XUS02LjlPFiFfH3v2rIUHk';
+        const ADMIN_ID = 8194068769;
+        let tg = window.Telegram.WebApp;
         
-        // Проверяем авторизацию при загрузке
-        document.addEventListener('DOMContentLoaded', function() {
-            const savedKey = localStorage.getItem('access_key');
-            if (savedKey) {
-                checkKeyOnServer(savedKey);
-            } else {
-                showAuthModal();
-            }
-        });
+        // Инициализация WebApp
+        tg.expand();
+        tg.enableClosingConfirmation();
         
-        // Показываем модальное окно авторизации
-        function showAuthModal() {
-            document.getElementById('authModal').style.display = 'flex';
-            document.getElementById('logoutBtn').style.display = 'none';
-            document.getElementById('username').textContent = 'Гость';
-            document.getElementById('subscription-date').textContent = 'Не активна';
-            currentUser = null;
-        }
-        
-        // Проверка ключа на сервере
-        async function checkKeyOnServer(key) {
-            try {
-                const response = await fetch('/api/check_key', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ key: key })
-                });
-                
-                const result = await response.json();
-                
-                if (result.valid) {
-                    currentUser = {
-                        access_key: key,
-                        subscription_end: result.user.subscription_end,
-                        username: 'Пользователь'
-                    };
-                    updateUserInfo();
-                    document.getElementById('authModal').style.display = 'none';
-                    document.getElementById('logoutBtn').style.display = 'block';
-                    document.getElementById('authKey').value = '';
-                    showContent('botnet');
-                    showNotification('Авторизация успешна');
-                } else {
-                    document.getElementById('authError').style.display = 'block';
-                }
-            } catch (error) {
-                console.error('Ошибка при проверке ключа:', error);
-                showNotification('Ошибка соединения с сервером', true);
-            }
-        }
-        
-        // Обработчик кнопки "Войти"
-        async function checkAuth() {
-            const key = document.getElementById('authKey').value.trim();
-            if (!key) {
-                document.getElementById('authError').textContent = 'Введите ключ доступа';
-                document.getElementById('authError').style.display = 'block';
-                return;
-            }
-            
-            document.getElementById('authError').style.display = 'none';
-            await checkKeyOnServer(key);
-        }
-        
-        // Выход из системы
-        function logout() {
-            localStorage.removeItem('access_key');
-            currentUser = null;
-            showAuthModal();
-            showNotification('Вы вышли из системы');
-        }
-        
-        // Обновление информации о пользователе
-        function updateUserInfo() {
-            if (currentUser) {
-                document.getElementById('username').textContent = currentUser.username;
-                
-                if (currentUser.subscription_end) {
-                    const endDate = new Date(currentUser.subscription_end);
-                    document.getElementById('subscription-date').textContent = 
-                        endDate.toLocaleDateString('ru-RU') + ' ' + 
-                        endDate.toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
-                } else {
-                    document.getElementById('subscription-date').textContent = 'Не активна';
-                }
-                
-                localStorage.setItem('access_key', currentUser.access_key);
-            }
-        }
-        
-        // Отправка жалобы
-        async function submitReport() {
-            if (!currentUser) {
-                showNotification('Требуется авторизация', true);
-                showAuthModal();
-                return;
-            }
-            
-            const url = document.getElementById('url').value;
-            const reason = document.getElementById('reason').value;
-            const message = document.getElementById('message').value;
-            const btn = document.querySelector('.submit-btn');
-            
-            if (!url || !reason) {
-                showNotification('Заполните обязательные поля', true);
-                return;
-            }
-            
-            if (reason === 'other' && !message) {
-                showNotification('Для причины "Другое" требуется комментарий', true);
-                return;
-            }
-            
-            if (!url.match(/^https?:\/\/t\.me\/.+/i)) {
-                showNotification('Некорректная ссылка Telegram', true);
-                return;
-            }
-            
-            document.getElementById('stats').style.display = 'block';
-            document.getElementById('success-count').textContent = '0';
-            document.getElementById('failed-count').textContent = '0';
-            
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Отправка...';
-            
-            try {
-                const response = await fetch('/api/report', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': currentUser.access_key
-                    },
-                    body: JSON.stringify({
-                        url: url,
-                        reason: reason,
-                        message: message
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    document.getElementById('success-count').textContent = result.success_count;
-                    document.getElementById('failed-count').textContent = result.failed_count;
-                    showNotification(`Успешно отправлено ${result.success_count} жалоб`);
-                } else {
-                    showNotification(result.message || 'Ошибка при отправке', true);
-                }
-            } catch (error) {
-                console.error('Ошибка:', error);
-                showNotification('Ошибка соединения с сервером', true);
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Отправить жалобу';
-            }
-        }
-        
-        // Показываем уведомление
         function showNotification(message, isError = false) {
             const notification = document.getElementById('notification');
             notification.textContent = message;
@@ -493,18 +166,51 @@
             }, 3000);
         }
         
-        // Переключение между разделами
-        function showContent(contentId) {
-            if (!currentUser && contentId !== 'creator') {
-                showNotification('Требуется авторизация', true);
-                showAuthModal();
+        async function submitReport() {
+            const url = document.getElementById('url').value;
+            const reason = document.getElementById('reason').value;
+            const message = document.getElementById('message').value;
+            const btn = document.querySelector('.submit-btn');
+            
+            if (!url || !reason) {
+                showNotification('Заполните обязательные поля', true);
                 return;
             }
             
-            document.querySelectorAll('.content').forEach(div => {
-                div.classList.remove('active');
-            });
-            document.getElementById(contentId + '-content').classList.add('active');
+            if (!url.match(/^https?:\/\/t\.me\/.+/i)) {
+                showNotification('Некорректная ссылка Telegram', true);
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Отправка...';
+            
+            try {
+                // Отправка данных через бота
+                const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: ADMIN_ID,
+                        text: `Новая жалоба от ${tg.initDataUnsafe.user?.username || 'пользователя'}:\n\nСсылка: ${url}\nПричина: ${reason}\nКомментарий: ${message || 'нет'}`,
+                        parse_mode: 'HTML'
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.ok) {
+                    showNotification('Жалоба отправлена на обработку!');
+                } else {
+                    showNotification('Ошибка при отправке', true);
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                showNotification('Ошибка соединения', true);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Отправить жалобу';
+            }
         }
     </script>
 </body>
